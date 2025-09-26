@@ -1,0 +1,70 @@
+name: Yeet
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    iOS: '15.0'
+packages: {}
+
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+
+targets:
+  Yeet:
+    type: application
+    platform: iOS
+    deploymentTarget: '15.0'
+    sources:
+      - path: Sources/YeetApp
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet
+        INFOPLIST_FILE: Sources/YeetApp/Info.plist
+    info:
+      path: Sources/YeetApp/Info.plist
+      properties:
+        CFBundleDisplayName: Yeet
+        CFBundleName: Yeet
+        UILaunchScreen:
+          UIColorName: White
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIUserInterfaceStyle: Light
+    entitlements:
+      path: Sources/YeetApp/Yeet.entitlements
+
+  YeetShareExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: '15.0'
+    sources:
+      - path: Sources/YeetShareExtension
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet.share
+        INFOPLIST_FILE: Sources/YeetShareExtension/Info.plist
+        LD_RUNPATH_SEARCH_PATHS: '$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'
+    info:
+      path: Sources/YeetShareExtension/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule: TRUEPREDICATE
+            NSExtensionActivationSupportsWebURLWithMaxCount: 1
+    dependencies:
+      - target: Yeet
+
+schemes:
+  Yeet:
+    build:
+      targets:
+        Yeet: all
+        YeetShareExtension: all
+    run:
+      config: Debug
+
