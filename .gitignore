@@ -15,4 +15,4 @@ fastlane/test_output
 ~$*
 .swiftpm/
 .xcodegen/
-
+Yeet.xcodeproj/

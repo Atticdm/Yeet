@@ -17,6 +17,9 @@ targets:
     sources:
       - path: Sources/YeetApp
       - path: Sources/Shared
+    dependencies:
+      - target: YeetShareExtension
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet
@@ -32,6 +35,8 @@ targets:
           UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIUserInterfaceStyle: Light
+        UIBackgroundModes: [fetch, processing]
+        NSUserNotificationUsageDescription: "Yeet uses notifications to let you know when a background download completes."
     entitlements:
       path: Sources/YeetApp/Yeet.entitlements
 
@@ -50,14 +55,15 @@ targets:
     info:
       path: Sources/YeetShareExtension/Info.plist
       properties:
+        CFBundleDisplayName: Yeet
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
           NSExtensionAttributes:
             NSExtensionActivationRule: TRUEPREDICATE
             NSExtensionActivationSupportsWebURLWithMaxCount: 1
-    dependencies:
-      - target: Yeet
+    entitlements:
+      path: Sources/YeetShareExtension/YeetShareExtension.entitlements
 
 schemes:
   Yeet:
@@ -67,4 +73,3 @@ schemes:
         YeetShareExtension: all
     run:
       config: Debug
-

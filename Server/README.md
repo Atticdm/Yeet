@@ -1,6 +1,6 @@
-# Serverless Function Contract (Placeholder)
+# Serverless Function Contract (Caching + Metadata)
 
-This backend encapsulates `yt-dlp` logic and returns a direct downloadable URL for a given video page URL.
+Backend encapsulates `yt-dlp` and exposes cached direct-download metadata for a given video URL.
 
 - Endpoint: `POST /get-video-link`
 - Request JSON:
@@ -9,15 +9,29 @@ This backend encapsulates `yt-dlp` logic and returns a direct downloadable URL f
   ```
 - Success JSON:
   ```json
-  { "downloadUrl": "https://.../video.mp4" }
+  {
+    "downloadUrl": "https://.../video.mp4",
+    "title": "Funny Cat Video",
+    "fileSize": 15728640,
+    "duration": 180,
+    "thumbnail": "https://.../thumb.jpg"
+  }
   ```
+  - `fileSize` in bytes (useful for estimating transfer time)
+  - `duration` in seconds (optional, helps with UI hints)
+  - `thumbnail` optional, generated via yt-dlp (fallback to null)
 - Error JSON:
   ```json
   { "error": "Unsupported URL or download failed." }
   ```
 
-Notes
-- Implement with Railway/Vercel/Lambda. Reuse provider logic from getsocialvideobot to resolve best downloadable format.
-- Add appropriate CORS if calling from app if needed (iOS app typically not restricted).
-- Consider rate limiting and auth if required.
+Caching Strategy
+- Recommended: Redis / Upstash / in-memory with TTL (~1–6h). Keyed by canonical URL/id.
+- Flow: check cache → return immediately if hit → otherwise run yt-dlp, store result (including link expiry where applicable), return payload.
+- Consider invalidating when yt-dlp returns expiring links; store expiry timestamp and refresh when stale.
 
+Implementation Notes
+- Reuse provider logic from getsocialvideobot to resolve formats and gather metadata (`title`, `duration`, `thumbnails`, `filesize_approx`).
+- Expose CORS if needed (mobile native usually fine).
+- Add rate limiting/auth if exposing publicly.
+- Provide structured error codes (e.g., `ERR_GEO_BLOCK`, `ERR_LOGIN_REQUIRED`).

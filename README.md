@@ -13,18 +13,18 @@ Yeet — минимальное iOS‑приложение со Share Extension.
 1) Установи XcodeGen (если нет):
    brew install xcodegen
 2) Сгенерируй проект:
-   cd /Users/attic/Yeet && xcodegen generate
+   xcodegen generate
 3) Открой `Yeet.xcodeproj` в Xcode.
 4) Поставь уникальные Bundle Identifier’ы для App и Extension, укажи свою команду разработки (Signing & Capabilities).
 5) Собери и запусти на устройстве/симуляторе.
 
 ## Ограничения/заметки
-- В `VideoDownloader.fetchDirectDownloadURL` сейчас мок (возвращает исходный URL). Позже он будет вызывать серверную функцию (Railway/Vercel/Lambda) с `yt-dlp` логикой (см. `Server/README.md`).
-- Расшаривание идёт через `UIActivityViewController`; файл удаляется после закрытия шитра.
-- Для теста можно расшарить любой HTTPS‑URL из Safari/Instagram/YouTube.
+- Укажи `backendBaseURL` в `Sources/Shared/AppConfig.swift`, чтобы использовать существующий веб‑бэкенд (например Railway `getsocialvideobot`). Без него скачивание работает только с прямыми `.mp4` ссылками.
+- Share Extension показывает компактную SwiftUI‑вью с прогрессом, а после скачивания автоматически открывает системный `UIActivityViewController`.
+- Временные файлы сохраняются в `Library/Caches/YeetTemp` и удаляются после закрытия финального шаринга/ошибки.
 
 ## Дальшие шаги
-- Реализовать реальный вызов серверной функции.
-- Добавить прогресс‑индикатор скачивания и обработку ошибок.
-- Настроить App Groups/Background Modes (не обязательно на первом этапе).
+- Реализовать серверless endpoint согласно `Server/README.md` (возвращает прямой `downloadUrl` и `title`).
+- Расширить обработку ошибок/повторную попытку, добавить аналитику.
+- Добавить настройки в главное приложение (например, переключение бэкенда, очистка кеша).
 
