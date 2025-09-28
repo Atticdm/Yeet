@@ -1,10 +1,9 @@
 name: Yeet
 options:
-  minimumXcodeGenVersion: 2.40.0 # Обновляем версию для поддержки attributes
+  minimumXcodeGenVersion: 2.40.0
   deploymentTarget:
     iOS: '15.0'
-  groupSortPosition: top # Упорядочиваем файлы для лучшей читаемости
-  transitivelyLinkDependencies: true
+  groupSortPosition: top
 
 settings:
   base:
@@ -20,9 +19,9 @@ targets:
       - path: Sources/YeetApp
       - path: Sources/Shared
     resources:
+      # Явно включаем Config.plist в ресурсы
       - path: Config.plist
-        # Гарантируем, что plist копируется в бандл
-        buildPhase: resources 
+        buildPhase: resources
     dependencies:
       - target: YeetShareExtension
         embed: true
@@ -30,7 +29,6 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet
         INFOPLIST_FILE: Sources/YeetApp/Info.plist
-      # Явно включаем Capabilities через атрибуты
       attributes:
         SystemCapabilities:
           com.apple.ApplicationGroups.iOS:
@@ -60,15 +58,14 @@ targets:
       - path: Sources/YeetShareExtension
       - path: Sources/Shared
     resources:
+      # И для расширения тоже
       - path: Config.plist
-        # Гарантируем, что plist копируется в бандл расширения
         buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet.share
         INFOPLIST_FILE: Sources/YeetShareExtension/Info.plist
         LD_RUNPATH_SEARCH_PATHS: '$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'
-      # Явно включаем Capabilities для расширения
       attributes:
         SystemCapabilities:
           com.apple.ApplicationGroups.iOS:

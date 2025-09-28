@@ -10,6 +10,8 @@
     <string>group.com.atticdm.Yeet</string>
     <key>keychainService</key>
     <string>com.atticdm.Yeet.cookies</string>
+    <key>keychainAccessGroup</key>
+    <string>com.atticdm.Yeet</string>
     <key>backgroundSessionIdentifier</key>
     <string>com.atticdm.Yeet.background</string>
     <key>assumedAverageThroughput</key>
