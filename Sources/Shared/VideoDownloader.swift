@@ -103,7 +103,7 @@ actor VideoDownloader {
                 onFinish: { [weak self] (tempURL: URL) in
                     Task {
                         do {
-                            let dest = try self?.persistDownloadedFile(from: tempURL, metadata: metadata)
+                            let dest = try await self?.persistDownloadedFile(from: tempURL, metadata: metadata)
                             progressHandler(ProgressSnapshot(receivedBytes: Int64(metadata.fileSize ?? 0), expectedBytes: Int64(metadata.fileSize ?? 0)))
                             continuation.resume(returning: dest ?? tempURL)
                         } catch {
