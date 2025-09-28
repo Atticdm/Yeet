@@ -3,10 +3,11 @@
 # Script to fix entitlements and Config.plist if they get cleared
 echo "🔧 Fixing entitlements, capabilities, and Config.plist..."
 
-# Ensure Config.plist exists
-if [ ! -f "Config.plist" ]; then
-    echo "📝 Creating Config.plist..."
-    cat > Config.plist << 'EOF'
+# Ensure Config.plist exists in correct location
+if [ ! -f "Sources/Shared/Config.plist" ]; then
+    echo "📝 Creating Config.plist in Sources/Shared/..."
+    mkdir -p Sources/Shared
+    cat > Sources/Shared/Config.plist << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">

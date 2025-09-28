@@ -8,20 +8,19 @@ options:
 settings:
   base:
     SWIFT_VERSION: 5.0
-    # ВАЖНО: Замени плейсхолдер на свой реальный Team ID из Apple Developer Portal
-    DEVELOPMENT_TEAM: ЗАМЕНИ_НА_СВОЙ_TEAM_ID
+    DEVELOPMENT_TEAM: ЗАМЕНИ_НА_СВОЙ_TEAM_ID # ВАЖНО: Убедись, что здесь твой реальный Team ID
 
 targets:
   Yeet:
     type: application
     platform: iOS
     sources:
+      # Исходный код
       - path: Sources/YeetApp
       - path: Sources/Shared
     resources:
-      # Явно включаем Config.plist в ресурсы
-      - path: Config.plist
-        buildPhase: resources
+      # Явно указываем, что Config.plist - это ресурс
+      - path: Sources/Shared/Config.plist
     dependencies:
       - target: YeetShareExtension
         embed: true
@@ -55,12 +54,12 @@ targets:
     type: app-extension
     platform: iOS
     sources:
+      # Исходный код
       - path: Sources/YeetShareExtension
       - path: Sources/Shared
     resources:
-      # И для расширения тоже
-      - path: Config.plist
-        buildPhase: resources
+      # И для расширения тоже указываем, что Config.plist - это ресурс
+      - path: Sources/Shared/Config.plist
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet.share
