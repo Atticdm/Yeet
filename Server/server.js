@@ -76,7 +76,6 @@ async function runYtDlp(url, cookies = {}) {
     '--get-title',
     '--get-duration',
     '--get-thumbnail',
-    '--get-filesize',
     ...(cookiesFile ? ['--cookies', cookiesFile] : []),
     url
   ].join(' ');
@@ -99,7 +98,7 @@ async function runYtDlp(url, cookies = {}) {
       title: lines[1] || 'Unknown Title',
       duration: lines[2] ? parseInt(lines[2]) : null,
       thumbnail: lines[3] || null,
-      fileSize: lines[4] ? parseInt(lines[4]) : null
+      fileSize: null // yt-dlp doesn't provide file size in this format
     };
 
     if (!result.downloadUrl) {
