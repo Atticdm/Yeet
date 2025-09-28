@@ -12,7 +12,7 @@ RUN apk add --no-cache python3 py3-pip ffmpeg && \
 COPY Server/package*.json ./
 
 # Install app dependencies
-RUN npm install --production
+RUN npm ci --only=production
 
 # Copy app source code from Server directory
 COPY Server/ .
