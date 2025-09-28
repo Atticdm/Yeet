@@ -40,14 +40,10 @@ enum AppConfig {
         configuration["appGroupIdentifier"] as? String ?? "group.com.atticdm.Yeet"
     }()
 
-    /// Shared keychain access group. Must start with your Team ID prefix.
+    /// Shared keychain access group. Simplified for development.
     static let keychainAccessGroup: String = {
-        guard let teamID = Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String, !teamID.isEmpty else {
-            // This is a fallback for previews or misconfigured environments
-            print("Warning: Could not determine AppIdentifierPrefix. Keychain sharing may fail.")
-            return "com.atticdm.Yeet" 
-        }
-        return "\(teamID)com.atticdm.Yeet"
+        // Use a simple identifier for development
+        return "com.atticdm.Yeet"
     }()
 
     /// Service name for Keychain entries.

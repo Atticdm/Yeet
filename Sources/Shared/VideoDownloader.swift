@@ -171,8 +171,8 @@ private extension VideoDownloader {
     final class DownloadDelegate: NSObject, URLSessionDownloadDelegate {
         private let expectedBytes: Int64
         private let progressHandler: (ProgressSnapshot) -> Void
-        var onFinish: ((URL) -> Void)?
-        var onFailure: ((Error?) -> Void)?
+        @Sendable var onFinish: ((URL) -> Void)?
+        @Sendable var onFailure: ((Error?) -> Void)?
 
         init(expectedBytes: Int64, progressHandler: @escaping (ProgressSnapshot) -> Void) {
             self.expectedBytes = expectedBytes
