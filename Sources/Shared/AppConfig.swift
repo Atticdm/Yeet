@@ -2,22 +2,32 @@ import Foundation
 
 enum AppConfig {
     private static let configuration: [String: Any] = {
-        // Use the bundle associated with the Shared module
-        let bundle = Bundle(for: BundleToken.self)
-        guard let url = bundle.url(forResource: "Config", withExtension: "plist"),
-              let data = try? Data(contentsOf: url),
-              let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
-              let dict = plist as? [String: Any] else {
-            // Critical error if config is missing
-            fatalError("Config.plist not found or failed to load. Make sure it's included in all target memberships.")
+        // Try main bundle first, then fallback to Shared module bundle
+        let bundles = [Bundle.main, Bundle(for: BundleToken.self)]
+        
+        for bundle in bundles {
+            if let url = bundle.url(forResource: "Config", withExtension: "plist"),
+               let data = try? Data(contentsOf: url),
+               let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
+               let dict = plist as? [String: Any] {
+                print("✅ Config.plist loaded from bundle: \(bundle.bundleIdentifier ?? "unknown")")
+                return dict
+            }
         }
-        return dict
+        
+        // If not found in any bundle, return empty dict instead of crashing
+        print("⚠️ Config.plist not found in any bundle. Using default values.")
+        return [:]
     }()
 
     /// Base URL for the Yeet backend (Railway / serverless function).
     static let backendBaseURL: URL? = {
-        guard let value = configuration["backendBaseURL"] as? String else { return nil }
-        return URL(string: value)
+        if let value = configuration["backendBaseURL"] as? String {
+            return URL(string: value)
+        }
+        // Fallback to Railway URL if Config.plist is missing
+        print("⚠️ Using fallback backend URL")
+        return URL(string: "https://yeet-production-dddc.up.railway.app")
     }()
 
     /// Endpoint that resolves metadata + cached download link.
