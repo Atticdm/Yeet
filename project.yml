@@ -1,26 +1,28 @@
 name: Yeet
 options:
-  minimumXcodeGenVersion: 2.38.0
+  minimumXcodeGenVersion: 2.40.0 # Обновляем версию для поддержки attributes
   deploymentTarget:
     iOS: '15.0'
-packages: {}
+  groupSortPosition: top # Упорядочиваем файлы для лучшей читаемости
+  transitivelyLinkDependencies: true
 
 settings:
   base:
     SWIFT_VERSION: 5.0
-    # Add your Apple Developer Team ID here
-    DEVELOPMENT_TEAM: # e.g., A1B2C3D4E5
+    # ВАЖНО: Замени плейсхолдер на свой реальный Team ID из Apple Developer Portal
+    DEVELOPMENT_TEAM: ЗАМЕНИ_НА_СВОЙ_TEAM_ID
 
 targets:
   Yeet:
     type: application
     platform: iOS
-    deploymentTarget: '15.0'
     sources:
       - path: Sources/YeetApp
       - path: Sources/Shared
     resources:
       - path: Config.plist
+        # Гарантируем, что plist копируется в бандл
+        buildPhase: resources 
     dependencies:
       - target: YeetShareExtension
         embed: true
@@ -28,6 +30,13 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet
         INFOPLIST_FILE: Sources/YeetApp/Info.plist
+      # Явно включаем Capabilities через атрибуты
+      attributes:
+        SystemCapabilities:
+          com.apple.ApplicationGroups.iOS:
+            enabled: true
+          com.apple.Keychain:
+            enabled: true
     info:
       path: Sources/YeetApp/Info.plist
       properties:
@@ -47,17 +56,25 @@ targets:
   YeetShareExtension:
     type: app-extension
     platform: iOS
-    deploymentTarget: '15.0'
     sources:
       - path: Sources/YeetShareExtension
       - path: Sources/Shared
     resources:
       - path: Config.plist
+        # Гарантируем, что plist копируется в бандл расширения
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet.share
         INFOPLIST_FILE: Sources/YeetShareExtension/Info.plist
         LD_RUNPATH_SEARCH_PATHS: '$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks'
+      # Явно включаем Capabilities для расширения
+      attributes:
+        SystemCapabilities:
+          com.apple.ApplicationGroups.iOS:
+            enabled: true
+          com.apple.Keychain:
+            enabled: true
     info:
       path: Sources/YeetShareExtension/Info.plist
       properties:
