@@ -16,8 +16,7 @@ final class KeychainService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "\(AppConfig.keychainService).\(service)",
             kSecAttrAccount as String: "cookies",
-            kSecValueData as String: data,
-            kSecAttrAccessGroup as String: AppConfig.keychainAccessGroup
+            kSecValueData as String: data
         ]
         
         // Delete existing item first
@@ -37,8 +36,7 @@ final class KeychainService {
             kSecAttrService as String: "\(AppConfig.keychainService).\(service)",
             kSecAttrAccount as String: "cookies",
             kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecAttrAccessGroup as String: AppConfig.keychainAccessGroup
+            kSecMatchLimit as String: kSecMatchLimitOne
         ]
         
         var result: AnyObject?
@@ -57,8 +55,7 @@ final class KeychainService {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "\(AppConfig.keychainService).\(service)",
-            kSecAttrAccount as String: "cookies",
-            kSecAttrAccessGroup as String: AppConfig.keychainAccessGroup
+            kSecAttrAccount as String: "cookies"
         ]
         
         let status = SecItemDelete(query as CFDictionary)
@@ -83,8 +80,7 @@ final class KeychainService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: AppConfig.keychainService,
             kSecReturnAttributes as String: true,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-            kSecAttrAccessGroup as String: AppConfig.keychainAccessGroup
+            kSecMatchLimit as String: kSecMatchLimitAll
         ]
         
         var result: AnyObject?
