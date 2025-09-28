@@ -80,13 +80,11 @@ final class DownloaderViewModel: ObservableObject {
     }
     
     func retry() {
-        hasStarted = false
         state = .idle
         Task { await process() }
     }
     
     func retry(with cookies: [String: String]) {
-        hasStarted = false
         state = .idle
         Task { await process(with: cookies) }
     }
