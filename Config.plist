@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>backendBaseURL</key>
-    <string>https://zoological-rejoicing-production.up.railway.app</string>
+    <string>https://yeet-production-dddc.up.railway.app</string>
     <key>metadataPath</key>
     <string>/get-video-link</string>
     <key>appGroupIdentifier</key>
