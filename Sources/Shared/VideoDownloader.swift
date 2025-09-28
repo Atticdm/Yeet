@@ -95,8 +95,7 @@ actor VideoDownloader {
 
     func downloadVideo(using metadata: VideoMetadata, progress progressHandler: @escaping (ProgressSnapshot) -> Void) async throws -> URL {
         let expectedBytes = metadata.fileSize.map { Int64($0) } ?? NSURLSessionTransferSizeUnknown
-        let config = URLSessionConfiguration.default
-
+        
         return try await withCheckedThrowingContinuation { continuation in
             let delegate = DownloadDelegate(
                 expectedBytes: expectedBytes, 
@@ -110,15 +109,14 @@ actor VideoDownloader {
                         } catch {
                             continuation.resume(throwing: error)
                         }
-                        session.finishTasksAndInvalidate()
                     }
                 },
                 onFailure: { error in
                     continuation.resume(throwing: error ?? VideoDownloaderError.downloadFailed)
-                    session.invalidateAndCancel()
                 }
             )
             
+            let config = URLSessionConfiguration.default
             let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
             let task = session.downloadTask(with: metadata.downloadUrl)
             task.resume()
