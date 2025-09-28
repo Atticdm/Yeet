@@ -4,6 +4,7 @@ options:
   deploymentTarget:
     iOS: '15.0'
   groupSortPosition: top
+  transitivelyLinkDependencies: true
 
 settings:
   base:

@@ -25,24 +25,20 @@ final class DownloaderViewModel: ObservableObject {
     @Published var activityItem: ActivityItem?
 
     private let downloader = VideoDownloader()
-    private weak var extensionContext: NSExtensionContext?
+    private let extensionContext: NSExtensionContext?
     private let logger: Logger
-    private var hasStarted = false
     private var sharedURL: URL?
 
-    init(logger: Logger) {
+    init(extensionContext: NSExtensionContext?, logger: Logger) {
+        self.extensionContext = extensionContext
         self.logger = logger
     }
 
     // MARK: - Entry Points
-
-    func attach(extensionContext: NSExtensionContext?) {
-        self.extensionContext = extensionContext
-    }
-
-    func startProcessingIfNeeded() {
-        guard !hasStarted else { return }
-        hasStarted = true
+    
+    func startProcessing() {
+        // Запускаем только один раз
+        guard sharedURL == nil else { return }
         Task { await process() }
     }
 

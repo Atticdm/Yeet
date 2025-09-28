@@ -4,18 +4,12 @@ import os.log
 
 final class ShareViewController: UIViewController {
     private let logger = Logger(subsystem: "com.atticdm.Yeet", category: "ShareExtension")
-    private lazy var viewModel = DownloaderViewModel(logger: logger)
+    private lazy var viewModel = DownloaderViewModel(extensionContext: extensionContext, logger: logger)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         preferredContentSize = CGSize(width: 0, height: 240)
         embedShareView()
-        viewModel.attach(extensionContext: extensionContext)
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        viewModel.attach(extensionContext: extensionContext)
     }
 
     private func embedShareView() {

@@ -14,7 +14,9 @@ struct ShareView: View {
         .frame(maxWidth: .infinity)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .task { viewModel.startProcessingIfNeeded() }
+        .onAppear {
+            viewModel.startProcessing()
+        }
         .sheet(item: $viewModel.activityItem) { item in
             ActivityViewController(activityItems: [item.url]) { _, completed, _, _ in
                 viewModel.activityCompleted(completed)
