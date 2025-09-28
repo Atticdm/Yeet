@@ -8,6 +8,8 @@ packages: {}
 settings:
   base:
     SWIFT_VERSION: 5.0
+    # Add your Apple Developer Team ID here
+    DEVELOPMENT_TEAM: # e.g., A1B2C3D4E5
 
 targets:
   Yeet:
@@ -41,6 +43,11 @@ targets:
         NSUserNotificationUsageDescription: "Yeet uses notifications to let you know when a background download completes."
     entitlements:
       path: Sources/YeetApp/Yeet.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - $(AppConfig.appGroupIdentifier)
+        keychain-access-groups:
+          - $(AppConfig.keychainAccessGroup)
 
   YeetShareExtension:
     type: app-extension
@@ -68,6 +75,11 @@ targets:
             NSExtensionActivationSupportsWebURLWithMaxCount: 1
     entitlements:
       path: Sources/YeetShareExtension/YeetShareExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - $(AppConfig.appGroupIdentifier)
+        keychain-access-groups:
+          - $(AppConfig.keychainAccessGroup)
 
 schemes:
   Yeet:

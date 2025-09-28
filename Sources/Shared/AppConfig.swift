@@ -2,17 +2,16 @@ import Foundation
 
 enum AppConfig {
     private static let configuration: [String: Any] = {
+        // Use the bundle associated with the Shared module
+        let bundle = Bundle(for: BundleToken.self)
         guard let url = bundle.url(forResource: "Config", withExtension: "plist"),
               let data = try? Data(contentsOf: url),
               let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
               let dict = plist as? [String: Any] else {
-            return [:]
+            // Critical error if config is missing
+            fatalError("Config.plist not found or failed to load. Make sure it's included in all target memberships.")
         }
         return dict
-    }()
-
-    private static let bundle: Bundle = {
-        Bundle(for: BundleToken.self)
     }()
 
     /// Base URL for the Yeet backend (Railway / serverless function).
@@ -31,14 +30,14 @@ enum AppConfig {
         configuration["appGroupIdentifier"] as? String ?? "group.com.atticdm.Yeet"
     }()
 
-    /// Shared keychain access group used to store user cookies accessible by app + extension.
+    /// Shared keychain access group. Must start with your Team ID prefix.
     static let keychainAccessGroup: String = {
-        let fallback = "com.atticdm.Yeet"
-        guard let prefix = (Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !prefix.isEmpty else {
-            return fallback
+        guard let teamID = Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as? String, !teamID.isEmpty else {
+            // This is a fallback for previews or misconfigured environments
+            print("Warning: Could not determine AppIdentifierPrefix. Keychain sharing may fail.")
+            return "com.atticdm.Yeet" 
         }
-        return "\(prefix)com.atticdm.Yeet"
+        return "\(teamID)com.atticdm.Yeet"
     }()
 
     /// Service name for Keychain entries.
