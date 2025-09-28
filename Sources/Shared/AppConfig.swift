@@ -2,8 +2,13 @@ import Foundation
 
 enum AppConfig {
     private static let configuration: [String: Any] = {
-        // Try main bundle first, then fallback to Shared module bundle
-        let bundles = [Bundle.main, Bundle(for: BundleToken.self)]
+        // Try multiple bundle locations
+        let bundles = [
+            Bundle.main,
+            Bundle(for: BundleToken.self),
+            Bundle(identifier: "com.atticdm.Yeet"),
+            Bundle(identifier: "com.atticdm.Yeet.share")
+        ].compactMap { $0 }
         
         for bundle in bundles {
             if let url = bundle.url(forResource: "Config", withExtension: "plist"),
