@@ -95,30 +95,31 @@ actor VideoDownloader {
 
     func downloadVideo(using metadata: VideoMetadata, progress progressHandler: @escaping (ProgressSnapshot) -> Void) async throws -> URL {
         let expectedBytes = metadata.fileSize.map { Int64($0) } ?? NSURLSessionTransferSizeUnknown
-        let delegate = DownloadDelegate(expectedBytes: expectedBytes, progressHandler: progressHandler)
         let config = URLSessionConfiguration.default
-        let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
 
         return try await withCheckedThrowingContinuation { continuation in
-            delegate.onFinish = { [weak delegate] (tempURL: URL) in
-                Task {
-                    do {
-                        let dest = try self.persistDownloadedFile(from: tempURL, metadata: metadata)
-                        progressHandler(ProgressSnapshot(receivedBytes: Int64(metadata.fileSize ?? 0), expectedBytes: Int64(metadata.fileSize ?? 0)))
-                        continuation.resume(returning: dest)
-                    } catch {
-                        continuation.resume(throwing: error)
+            let delegate = DownloadDelegate(
+                expectedBytes: expectedBytes, 
+                progressHandler: progressHandler,
+                onFinish: { [weak self] (tempURL: URL) in
+                    Task {
+                        do {
+                            let dest = try self?.persistDownloadedFile(from: tempURL, metadata: metadata)
+                            progressHandler(ProgressSnapshot(receivedBytes: Int64(metadata.fileSize ?? 0), expectedBytes: Int64(metadata.fileSize ?? 0)))
+                            continuation.resume(returning: dest ?? tempURL)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                        session.finishTasksAndInvalidate()
                     }
-                    session.finishTasksAndInvalidate()
-                    _ = delegate // capture to extend lifetime
+                },
+                onFailure: { error in
+                    continuation.resume(throwing: error ?? VideoDownloaderError.downloadFailed)
+                    session.invalidateAndCancel()
                 }
-            }
-
-            delegate.onFailure = { error in
-                continuation.resume(throwing: error ?? VideoDownloaderError.downloadFailed)
-                session.invalidateAndCancel()
-            }
-
+            )
+            
+            let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
             let task = session.downloadTask(with: metadata.downloadUrl)
             task.resume()
         }
@@ -171,12 +172,14 @@ private extension VideoDownloader {
     final class DownloadDelegate: NSObject, URLSessionDownloadDelegate {
         private let expectedBytes: Int64
         private let progressHandler: (ProgressSnapshot) -> Void
-        @Sendable var onFinish: ((URL) -> Void)?
-        @Sendable var onFailure: ((Error?) -> Void)?
+        private let onFinish: ((URL) -> Void)?
+        private let onFailure: ((Error?) -> Void)?
 
-        init(expectedBytes: Int64, progressHandler: @escaping (ProgressSnapshot) -> Void) {
+        init(expectedBytes: Int64, progressHandler: @escaping (ProgressSnapshot) -> Void, onFinish: ((URL) -> Void)? = nil, onFailure: ((Error?) -> Void)? = nil) {
             self.expectedBytes = expectedBytes
             self.progressHandler = progressHandler
+            self.onFinish = onFinish
+            self.onFailure = onFailure
         }
 
         func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
