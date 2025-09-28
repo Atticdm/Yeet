@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.DS_Store
+.git
+.gitignore
+build
+.vscode
+*.log
+Sources/
+project.yml
+Config.plist
+DEPLOYMENT.md
+QUICK_START.md
+RAILWAY_SETUP.md
+README.md

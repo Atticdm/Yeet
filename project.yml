@@ -17,6 +17,8 @@ targets:
     sources:
       - path: Sources/YeetApp
       - path: Sources/Shared
+    resources:
+      - path: Config.plist
     dependencies:
       - target: YeetShareExtension
         embed: true
@@ -47,6 +49,8 @@ targets:
     sources:
       - path: Sources/YeetShareExtension
       - path: Sources/Shared
+    resources:
+      - path: Config.plist
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.atticdm.Yeet.share

@@ -62,14 +62,17 @@ actor VideoDownloader {
         self.encoder = encoder
     }
 
-    func fetchMetadata(for url: URL) async throws -> VideoMetadata {
+    func fetchMetadata(for url: URL, cookies: [String: String] = [:]) async throws -> VideoMetadata {
         guard let base = AppConfig.backendBaseURL else { throw VideoDownloaderError.invalidConfiguration }
         let endpoint = base.appendingPathComponent(AppConfig.metadataPath.trimmingCharacters(in: CharacterSet(charactersIn: "/")), isDirectory: false)
 
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let payload = try encoder.encode(MetadataRequest(url: url.absoluteString))
+        
+        // Create request payload with optional cookies
+        let requestPayload = MetadataRequest(url: url.absoluteString, userCookiesJson: cookies.isEmpty ? nil : cookies)
+        let payload = try encoder.encode(requestPayload)
         request.httpBody = payload
 
         let (data, response) = try await session.data(for: request)
@@ -81,7 +84,11 @@ actor VideoDownloader {
         }
 
         if let backendError = try? decoder.decode(BackendError.self, from: data) {
-            throw VideoDownloaderError.backendError(backendError.error)
+            // Include error code in the error message for better error handling
+            let errorMessage = backendError.errorCode != nil ? 
+                "\(backendError.error) (\(backendError.errorCode!))" : 
+                backendError.error
+            throw VideoDownloaderError.backendError(errorMessage)
         }
         throw VideoDownloaderError.invalidResponse
     }
@@ -144,8 +151,14 @@ actor VideoDownloader {
 }
 
 private extension VideoDownloader {
-    struct MetadataRequest: Codable { let url: String }
-    struct BackendError: Codable { let error: String }
+    struct MetadataRequest: Codable { 
+        let url: String
+        let userCookiesJson: [String: String]?
+    }
+    struct BackendError: Codable { 
+        let error: String
+        let errorCode: String?
+    }
 
     func sanitizeFileName(_ name: String) -> String {
         let trimmed = name.components(separatedBy: "?").first ?? name

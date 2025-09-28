@@ -12,6 +12,7 @@ final class DownloaderViewModel: ObservableObject {
         case notifying(VideoMetadata)
         case success(VideoMetadata, URL)
         case error(String)
+        case loginRequired
     }
 
     struct ActivityItem: Identifiable {
@@ -81,10 +82,22 @@ final class DownloaderViewModel: ObservableObject {
     func dismissAfterError() {
         extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
     }
+    
+    func retry() {
+        hasStarted = false
+        state = .idle
+        Task { await process() }
+    }
+    
+    func retry(with cookies: [String: String]) {
+        hasStarted = false
+        state = .idle
+        Task { await process(with: cookies) }
+    }
 
     // MARK: - Core Flow
 
-    private func process() async {
+    private func process(with cookies: [String: String] = [:]) async {
         state = .fetchingLink
         guard let context = extensionContext else {
             state = .error("Extension context missing")
@@ -99,12 +112,19 @@ final class DownloaderViewModel: ObservableObject {
         logger.debug("Processing shared URL: \(incomingURL.absoluteString, privacy: .public)")
 
         do {
-            let metadata = try await downloader.fetchMetadata(for: incomingURL)
+            let metadata = try await downloader.fetchMetadata(for: incomingURL, cookies: cookies)
             logger.debug("Metadata received: title=\(metadata.title, privacy: .public) size=\(metadata.fileSize ?? -1)")
             if shouldOfferBackgroundDownload(for: metadata) {
                 state = .longDownloadPrompt(metadata)
             } else {
                 await runImmediateDownload(using: metadata)
+            }
+        } catch VideoDownloaderError.backendError(let message) {
+            logger.error("Backend error: \(message, privacy: .public)")
+            if message.contains("ERR_LOGIN_REQUIRED") || message.contains("Login required") {
+                state = .loginRequired
+            } else {
+                state = .error(message)
             }
         } catch {
             logger.error("Metadata fetch failed: \(error.localizedDescription, privacy: .public)")
@@ -190,6 +210,8 @@ extension DownloaderViewModel {
         switch state {
         case .longDownloadPrompt(let metadata), .downloading(let metadata, _), .success(let metadata, _), .notifying(let metadata):
             return metadata.title
+        case .loginRequired:
+            return "Authentication Required"
         default:
             return "Preparing…"
         }
@@ -218,9 +240,10 @@ extension DownloaderViewModel {
                 return "Downloading \(received) of \(total) (\(percent)%)"
             }
             return "Downloading…"
-        case .notifying: return "We’ll notify you when it’s ready"
+        case .notifying: return "We'll notify you when it's ready"
         case .success: return "Ready to share"
         case .error(let message): return message
+        case .loginRequired: return "Please log in to access this content"
         }
     }
 
@@ -228,7 +251,7 @@ extension DownloaderViewModel {
         switch state {
         case .downloading, .fetchingLink, .longDownloadPrompt:
             return true
-        case .idle, .success, .notifying, .error:
+        case .idle, .success, .notifying, .error, .loginRequired:
             return false
         }
     }
