@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 # Install yt-dlp and dependencies
 RUN apk add --no-cache python3 py3-pip ffmpeg && \
-    pip install yt-dlp
+    pip install --break-system-packages yt-dlp
 
 # Copy package.json and package-lock.json from Server directory
 COPY Server/package*.json ./
